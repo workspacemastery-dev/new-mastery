@@ -1,0 +1,1 @@
+ALTER TABLE public.academies ADD COLUMN IF NOT EXISTS cover_image_url text;

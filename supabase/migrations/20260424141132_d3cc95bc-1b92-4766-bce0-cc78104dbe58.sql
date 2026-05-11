@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Public read course-assets" ON storage.objects;

@@ -1,0 +1,302 @@
+{editing && (
+        <QuestionDraftModal
+          existing={editing.idx === "new" ? undefined : questions[editing.idx]}
+          onClose={() => setEditing(null)}
+          onSave={(q) => {
+            if (editing.idx === "new") setQuestions([...questions, q]);
+            else { const next = [...questions]; next[editing.idx] = q; setQuestions(next); }
+            setEditing(null);
+          }}
+        />
+      )}
+
+      {bankOpen && academyId && (
+        <BankModal
+          academyId={academyId}
+          onClose={() => setBankOpen(false)}
+          onImport={(items) => {
+            setQuestions([...questions, ...items]);
+            setBankOpen(false);
+          }}
+        />
+      )}
+    </PageContainer>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="bg-input/50 border border-border/60 rounded-xl p-3 text-center">
+      <div className="text-xs text-muted-foreground mb-1">{label}</div>
+      <div className="font-bold">{value}</div>
+    </div>
+  );
+}
+
+function labelForType(t: QuestionType) {
+  return t === "mcq" ? "اختياري" : t === "true_false" ? "صح / خطأ" : "مقالي";
+}
+
+function QuestionDraftModal({ existing, onClose, onSave }: {
+  existing?: DraftQuestion;
+  onClose: () => void;
+  onSave: (q: DraftQuestion) => void;
+}) {
+  const [text, setText] = useState(existing?.question_text ?? "");
+  const [type, setType] = useState<QuestionType>(existing?.question_type ?? "mcq");
+  const [points, setPoints] = useState(existing?.points ?? 1);
+  const [imageUrl, setImageUrl] = useState(existing?.image_url ?? "");
+  const [correctText, setCorrectText] = useState(existing?.correct_text ?? "");
+  const [explanation, setExplanation] = useState(existing?.explanation ?? "");
+  const [options, setOptions] = useState<DraftOption[]>(
+    existing?.options.length
+      ? existing.options.map((o) => ({ option_text: o.option_text, is_correct: o.is_correct }))
+      : type === "true_false"
+        ? [{ option_text: "صح", is_correct: false }, { option_text: "خطأ", is_correct: false }]
+        : [{ option_text: "", is_correct: false }, { option_text: "", is_correct: false }]
+  );
+  const [uploading, setUploading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  function changeType(t: QuestionType) {
+    setType(t);
+    if (t === "true_false") setOptions([{ option_text: "صح", is_correct: false }, { option_text: "خطأ", is_correct: false }]);
+    else if (t === "mcq" && options.length < 2) setOptions([{ option_text: "", is_correct: false }, { option_text: "", is_correct: false }]);
+  }
+
+  async function uploadImage(file: File) {
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `questions/draft/${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("course-assets").upload(path, file);
+    if (upErr) { setErr(upErr.message); setUploading(false); return; }
+    const { data: pub } = supabase.storage.from("course-assets").getPublicUrl(path);
+    setImageUrl(pub.publicUrl);
+    setUploading(false);
+  }
+
+  function submit(e: FormEvent) {
+    e.preventDefault();
+    if (!text.trim()) { setErr("نص السؤال مطلوب"); return; }
+    if (type !== "short_text" && !options.some((o) => o.is_correct && o.option_text.trim())) {
+      setErr("يجب تحديد إجابة صحيحة واحدة على الأقل"); return;
+    }
+    if (type === "short_text" && !correctText.trim()) { setErr("يجب إدخال الإجابة الصحيحة"); return; }
+    onSave({
+      question_text: text.trim(),
+      question_type: type,
+      image_url: imageUrl || null,
+      points,
+      correct_text: type === "short_text" ? correctText.trim() : null,
+      explanation: explanation.trim(),
+      options: type === "short_text" ? [] : options.filter((o) => o.option_text.trim()),
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm grid place-items-center p-4 overflow-y-auto" onClick={onClose}>
+      <form onClick={(e) => e.stopPropagation()} onSubmit={submit}
+        className="bg-card border border-border/60 rounded-2xl p-6 max-w-2xl w-full space-y-4 shadow-elevated my-8">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold">{existing ? "تعديل السؤال" : "سؤال جديد"}</h3>
+          <button type="button" onClick={onClose} className="size-8 grid place-items-center rounded-lg hover:bg-white/10"><X className="size-4" /></button>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5">نوع السؤال</label>
+          <div className="flex gap-2 flex-wrap">
+            {(["mcq", "true_false", "short_text"] as QuestionType[]).map((t) => (
+              <button key={t} type="button" onClick={() => changeType(t)}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition ${type === t ? "bg-gradient-primary text-primary-foreground" : "glass hover:bg-white/10"}`}>
+                {labelForType(t)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5">نص السؤال *</label>
+          <textarea required rows={2} value={text} onChange={(e) => setText(e.target.value)}
+            className="w-full bg-input border border-border/60 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5">صورة السؤال (للمعادلات الرياضية أو الرسوم)</label>
+          {imageUrl ? (
+            <div className="flex items-center gap-3">
+              <img src={imageUrl} alt="" className="h-24 rounded-lg border border-border/60" />
+              <button type="button" onClick={() => setImageUrl("")} className="text-xs text-destructive hover:underline">إزالة</button>
+            </div>
+          ) : (
+            <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass hover:bg-white/10 cursor-pointer text-sm">
+              <ImageIcon className="size-4" />
+              {uploading ? "جاري الرفع..." : "رفع صورة"}
+              <input type="file" accept="image/*" className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadImage(f); }} />
+            </label>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5">النقاط</label>
+          <input type="number" min={1} value={points} onChange={(e) => setPoints(Number(e.target.value))}
+            className="w-24 bg-input border border-border/60 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+        </div>
+
+        {type === "short_text" ? (
+          <div>
+            <label className="block text-sm font-medium mb-1.5">الإجابة الصحيحة (تطابق نصي)</label>
+            <input value={correctText} onChange={(e) => setCorrectText(e.target.value)}
+              className="w-full bg-input border border-border/60 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+          </div>
+        ) : (
+          <div>
+            <label className="block text-sm font-medium mb-2">الخيارات (حدد الصحيحة)</label>
+            <div className="space-y-2">
+              {options.map((o, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input type="checkbox" checked={o.is_correct}
+                    onChange={(e) => { const n = [...options]; n[i] = { ...o, is_correct: e.target.checked }; setOptions(n); }}
+                    className="size-4 accent-primary" />
+                  <input value={o.option_text}
+                    onChange={(e) => { const n = [...options]; n[i] = { ...o, option_text: e.target.value }; setOptions(n); }}
+                    placeholder={`خيار ${i + 1}`} disabled={type === "true_false"}
+                    className="flex-1 bg-input border border-border/60 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-70" />
+                  {type === "mcq" && options.length > 2 && (
+                    <button type="button" onClick={() => setOptions(options.filter((_, k) => k !== i))}
+                      className="size-8 grid place-items-center rounded-lg hover:bg-destructive/20 text-destructive">
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {type === "mcq" && (
+                <button type="button" onClick={() => setOptions([...options, { option_text: "", is_correct: false }])}
+                  className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+                  <Plus className="size-3" /> إضافة خيار
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5 inline-flex items-center gap-1.5">
+            <Lightbulb className="size-4 text-primary" /> شرح الإجابة (اختياري)
+          </label>
+          <textarea rows={2} value={explanation} onChange={(e) => setExplanation(e.target.value)}
+            className="w-full bg-input border border-border/60 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+        </div>
+
+        {err && <div className="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">{err}</div>}
+
+        <div className="flex items-center gap-2 justify-end pt-2 border-t border-border/60">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg glass hover:bg-white/10 text-sm">إلغاء</button>
+          <button type="submit" className="px-4 py-2 rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium">حفظ السؤال</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function BankModal({ academyId, onClose, onImport }: {
+  academyId: string;
+  onClose: () => void;
+  onImport: (items: DraftQuestion[]) => void;
+}) {
+  const [items, setItems] = useState<BankItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    void (async () => {
+      const { data } = await supabase
+        .from("questions")
+        .select("id, type, question_text, question_image, options, correct_answer")
+        .eq("academy_id", academyId)
+        .order("created_at", { ascending: false });
+      setItems((data ?? []) as BankItem[]);
+      setLoading(false);
+    })();
+  }, [academyId]);
+
+  function toggle(id: string) {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setSelected(next);
+  }
+
+  function importSelected() {
+    const drafts: DraftQuestion[] = items
+      .filter((it) => selected.has(it.id))
+      .map((it) => {
+        const rawOpts = Array.isArray(it.options) ? it.options : [];
+        const opts: DraftOption[] = rawOpts.map((o, i) => {
+          const text = typeof o === "string" ? o : (o as { text?: string }).text ?? "";
+          const isCorrect = typeof o === "object" && o !== null && "is_correct" in o
+            ? Boolean((o as { is_correct?: boolean }).is_correct)
+            : i === it.correct_answer;
+          return { option_text: String(text), is_correct: isCorrect };
+        });
+        const qType: QuestionType = it.type === "true_false" ? "true_false" : it.type === "short_text" || it.type === "essay" ? "short_text" : "mcq";
+        return {
+          question_text: it.question_text ?? "(بدون نص)",
+          question_type: qType,
+          image_url: it.question_image,
+          points: 1,
+          correct_text: null,
+          explanation: "",
+          options: qType === "short_text" ? [] : opts,
+        };
+      });
+    onImport(drafts);
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm grid place-items-center p-4 overflow-y-auto" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()}
+        className="bg-card border border-border/60 rounded-2xl p-6 max-w-3xl w-full space-y-4 shadow-elevated my-8">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold inline-flex items-center gap-2">
+            <BookMarked className="size-5 text-primary" /> بنك الأسئلة
+          </h3>
+          <button onClick={onClose} className="size-8 grid place-items-center rounded-lg hover:bg-white/10"><X className="size-4" /></button>
+        </div>
+
+        {loading ? (
+          <div className="grid place-items-center py-12"><Loader2 className="size-6 animate-spin text-primary" /></div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground border border-dashed border-border rounded-xl">
+            بنك الأسئلة فارغ. أضف أسئلة من قسم بنك الأسئلة أولاً.
+          </div>
+        ) : (
+          <>
+            <div className="text-xs text-muted-foreground">حدد الأسئلة المراد إدراجها ({selected.size} محدد)</div>
+            <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-1">
+              {items.map((it) => (
+                <label key={it.id}
+                  className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${selected.has(it.id) ? "border-primary bg-primary/5" : "border-border/60 hover:bg-white/5"}`}>
+                  <input type="checkbox" checked={selected.has(it.id)} onChange={() => toggle(it.id)} className="mt-1 size-4 accent-primary" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium mb-1 line-clamp-2">{it.question_text ?? "(بدون نص)"}</div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded bg-input">{it.type}</span>
+                      {it.question_image && <span className="text-primary">📷</span>}
+                    </div>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 justify-end pt-3 border-t border-border/60">
+              <button onClick={onClose} className="px-4 py-2 rounded-lg glass hover:bg-white/10 text-sm">إلغاء</button>
+              <button onClick={importSelected} disabled={selected.size === 0}
+                className="px-4 py-2 rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium disabled:opacity-50">
+                إدراج ({selected.size})
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

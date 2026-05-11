@@ -1,0 +1,326 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * EduVerse — Light Professional Design System
+ * Clean white + royal blue — educational portal style
+ * RTL ready (Arabic)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Academy brand colors */
+  --color-math: var(--math);
+  --color-math-glow: var(--math-glow);
+  --color-physics: var(--physics);
+  --color-physics-glow: var(--physics-glow);
+  --color-chemistry: var(--chemistry);
+  --color-chemistry-glow: var(--chemistry-glow);
+
+  --color-gold: var(--gold);
+
+  --font-display: "Cairo", "Tajawal", sans-serif;
+  --font-sans: "Cairo", "Tajawal", sans-serif;
+}
+:root {
+  --radius: 0.75rem;
+
+  /* Base */
+  --background: oklch(0.20 0.03 255);
+  --foreground: oklch(0.96 0.01 95);
+
+  /* Cards */
+  --card: oklch(0.24 0.028 255);
+  --card-foreground: oklch(0.96 0.01 95);
+
+  --popover: oklch(0.24 0.028 255);
+  --popover-foreground: oklch(0.96 0.01 95);
+
+  /* Gold */
+  --primary: oklch(0.78 0.16 75);
+  --primary-foreground: oklch(0.18 0.03 255);
+
+  --secondary: oklch(0.28 0.025 255);
+  --secondary-foreground: oklch(0.96 0.01 95);
+
+  --muted: oklch(0.26 0.02 255);
+  --muted-foreground: oklch(0.72 0.01 95);
+
+  --accent: oklch(0.78 0.16 75);
+  --accent-foreground: oklch(0.18 0.03 255);
+
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: white;
+
+  --border: oklch(0.95 0.01 95 / 0.08);
+  --input: oklch(0.95 0.01 95 / 0.06);
+  --ring: oklch(0.78 0.16 75);
+
+  /* Academy Colors */
+  --math: oklch(0.62 0.18 250);
+  --math-glow: oklch(0.74 0.18 245);
+
+  --physics: oklch(0.66 0.18 300);
+  --physics-glow: oklch(0.78 0.18 295);
+
+  --chemistry: oklch(0.68 0.18 160);
+  --chemistry-glow: oklch(0.80 0.18 155);
+
+  --gold: oklch(0.78 0.16 75);
+
+  /* Gradients */
+  --gradient-hero:
+    linear-gradient(
+      145deg,
+      oklch(0.24 0.04 255),
+      oklch(0.18 0.03 255)
+    );
+
+  --gradient-primary:
+    linear-gradient(
+      135deg,
+      oklch(0.72 0.16 70),
+      oklch(0.84 0.16 85)
+    );
+
+  --gradient-card:
+    linear-gradient(
+      160deg,
+      oklch(0.26 0.03 255 / 0.95),
+      oklch(0.21 0.02 255 / 0.95)
+    );
+
+  --gradient-math:
+    linear-gradient(
+      135deg,
+      oklch(0.58 0.18 245),
+      oklch(0.72 0.18 235)
+    );
+
+  --gradient-physics:
+    linear-gradient(
+      135deg,
+      oklch(0.60 0.18 300),
+      oklch(0.74 0.18 290)
+    );
+
+  --gradient-chemistry:
+    linear-gradient(
+      135deg,
+      oklch(0.60 0.18 160),
+      oklch(0.76 0.18 150)
+    );
+
+  /* Shadows */
+  --shadow-glow-primary:
+    0 0 40px oklch(0.78 0.16 75 / 0.25);
+
+  --shadow-glow-math:
+    0 0 35px oklch(0.62 0.18 250 / 0.25);
+
+  --shadow-glow-physics:
+    0 0 35px oklch(0.66 0.18 300 / 0.25);
+
+  --shadow-glow-chemistry:
+    0 0 35px oklch(0.68 0.18 160 / 0.25);
+
+  --shadow-elevated:
+    0 10px 40px rgba(0,0,0,.45);
+
+  --shadow-soft:
+    0 4px 18px rgba(0,0,0,.35);
+
+  --transition-smooth:
+    cubic-bezier(0.22,1,0.36,1);
+
+  /* Sidebar */
+  --sidebar: oklch(0.17 0.03 255);
+  --sidebar-foreground: oklch(0.96 0.01 95);
+
+  --sidebar-primary: oklch(0.78 0.16 75);
+  --sidebar-primary-foreground: oklch(0.18 0.03 255);
+
+  --sidebar-accent: oklch(0.24 0.03 255);
+  --sidebar-accent-foreground: oklch(0.96 0.01 95);
+
+  --sidebar-border: oklch(0.95 0.01 95 / 0.08);
+  --sidebar-ring: oklch(0.78 0.16 75);
+}
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    direction: rtl;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  
+    background-image:
+      radial-gradient(
+        ellipse 70% 50% at 50% -10%,
+        oklch(0.50 0.08 240 / 0.18),
+        transparent
+      ),
+  
+      radial-gradient(
+        ellipse 50% 40% at 100% 100%,
+        oklch(0.78 0.16 75 / 0.08),
+        transparent
+      );
+  
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+
+  /* Blue scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: oklch(0.94 0.012 240); }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.48 0.22 255 / 0.35);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.48 0.22 255 / 0.60);
+  }
+
+  /* Selection */
+  ::selection {
+    background: oklch(0.48 0.22 255 / 0.18);
+    color: oklch(0.18 0.040 255);
+  }
+}
+
+@layer utilities {
+  .bg-hero { background: var(--gradient-hero); }
+
+  .bg-card-premium {
+    background: var(--gradient-card);
+    border: 1px solid oklch(0.18 0.040 255 / 8%);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .bg-math          { background: var(--gradient-math); }
+  .bg-physics       { background: var(--gradient-physics); }
+  .bg-chemistry     { background: var(--gradient-chemistry); }
+  .bg-gradient-primary { background: var(--gradient-primary); }
+
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-gold {
+    background: linear-gradient(135deg, oklch(0.80 0.16 82), oklch(0.68 0.18 65));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .shadow-glow-primary   { box-shadow: var(--shadow-glow-primary); }
+  .shadow-glow-math      { box-shadow: var(--shadow-glow-math); }
+  .shadow-glow-physics   { box-shadow: var(--shadow-glow-physics); }
+  .shadow-glow-chemistry { box-shadow: var(--shadow-glow-chemistry); }
+  .shadow-elevated       { box-shadow: var(--shadow-elevated); }
+  .shadow-soft           { box-shadow: var(--shadow-soft); }
+
+  /* Glass — light version */
+  .glass {
+    background: oklch(1.00 0.000 0 / 0.70);
+    backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid oklch(0.18 0.040 255 / 0.10);
+  }
+
+  /* Subtle grid overlay */
+  .glass {
+    background: oklch(0.24 0.028 255 / 0.55);
+    backdrop-filter: blur(18px);
+    border: 1px solid oklch(0.95 0.01 95 / 0.08);
+  }
+  /* Card hover lift */
+  .card-hover {
+    transition: transform 0.25s var(--transition-smooth),
+                box-shadow 0.25s var(--transition-smooth),
+                border-color 0.25s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    border-color: oklch(0.48 0.22 255 / 0.20) !important;
+    box-shadow: 0 8px 32px -8px oklch(0.48 0.22 255 / 0.18);
+  }
+
+  /* Active nav — blue left border */
+  .nav-active {
+    background: oklch(0.48 0.22 255 / 0.08);
+    border-right: 3px solid oklch(0.48 0.22 255);
+    color: oklch(0.48 0.22 255);
+  }
+
+  /* Stat card accent top border */
+  .stat-card {
+    border-top: 3px solid oklch(0.48 0.22 255);
+    border-radius: var(--radius-lg);
+    background: oklch(1.00 0.000 0);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .animate-float {
+    animation: float 6s var(--transition-smooth) infinite;
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%       { opacity: 1;    transform: scale(1.04); }
+}
