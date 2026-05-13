@@ -1,0 +1,1 @@
+import{j as e,L as n}from"./index-CujIjCWU.js";const t=()=>e.jsx("div",{className:"min-h-screen grid place-items-center",children:e.jsxs("div",{className:"text-center",children:[e.jsx("h1",{className:"text-3xl font-bold mb-2",children:"الأكاديمية غير موجودة"}),e.jsx(n,{to:"/",className:"text-primary underline",children:"العودة للرئيسية"})]})});export{t as notFoundComponent};

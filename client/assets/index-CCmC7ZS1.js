@@ -1,0 +1,1 @@
+import{j as e}from"./index-CujIjCWU.js";const t=({error:r})=>e.jsx("div",{className:"min-h-screen grid place-items-center text-center px-6",children:e.jsxs("div",{children:[e.jsx("h1",{className:"text-2xl font-bold mb-2",children:"تعذّر تحميل الصفحة"}),e.jsx("p",{className:"text-muted-foreground",children:r.message})]})});export{t as errorComponent};
