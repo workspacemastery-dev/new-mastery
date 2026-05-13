@@ -59,7 +59,20 @@ export function useStudentAuth() {
     })();
   }, []);
 
-  function logout() {
+  async function logout() {
+    // 1) نجيب الـ token قبل حذفه
+    const token = getStoredStudentToken();
+
+    // 2) نسجّل وقت الخروج في قاعدة البيانات
+    if (token) {
+      await supabase
+        .from("student_sessions")
+        .update({ logged_out_at: new Date().toISOString() })
+        .eq("token", token)
+        .is("logged_out_at", null); // نحدّث فقط لو لم يسجل خروج من قبل
+    }
+
+    // 3) نحذف من المتصفح ونصفّر الـ session
     clearStudentSession();
     setSession(null);
   }

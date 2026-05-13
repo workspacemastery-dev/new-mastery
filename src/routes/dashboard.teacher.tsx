@@ -1,6 +1,6 @@
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, LayoutDashboard, BookOpen, ClipboardList, Users, UserCircle, MessageCircle, BrainCircuit , FileText , Megaphone } from "lucide-react";
+import { Loader2, LayoutDashboard, BookOpen, ClipboardList, Users, UserCircle, MessageCircle, BrainCircuit , FileText , Megaphone,Trophy } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout, type NavItem } from "@/components/dashboard/DashboardLayout";
@@ -52,6 +52,7 @@ function TeacherLayoutRoute() {
 
   const teacherNav: NavItem[] = [
     { to: "/dashboard/teacher", label: "الرئيسية", icon: LayoutDashboard, exact: true },
+    { to: "/dashboard/teacher/results", label: "النتائج", icon: Trophy },
     { to: "/dashboard/teacher/courses", label: "الكورسات", icon: BookOpen },
     { to: "/dashboard/teacher/quizzes", label: "الاختبارات", icon: ClipboardList },
     { to: "/dashboard/teacher/question-bank", label: "بنك الأسئلة", icon: BrainCircuit },
